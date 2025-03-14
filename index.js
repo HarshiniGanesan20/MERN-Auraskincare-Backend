@@ -315,4 +315,8 @@ app.get("/user", async (req, res) => {
     }
 });
 
+app.get("/",(req,res)=>{
+    res.send("Connection successful")
+})
+
 app.listen(5000, () => console.log("Server running on port 5000"));
