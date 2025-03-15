@@ -5,7 +5,6 @@ const Razorpay = require("razorpay");
 const crypto = require("crypto");
 
 
-
 require("dotenv").config();
 
 
@@ -88,9 +87,6 @@ app.post("/add-product", async (req, res) => {
         res.status(500).json({ error: "Error adding product" });
     }
 });
-
-
-
 
 
 // Review Schema
@@ -194,11 +190,70 @@ app.post("/verify-payment", async (req, res) => {
 
 // store order details
 
+// app.post("/store-order", async (req, res) => {
+//     try {
+//         const { orderId, products, totalAmount, customer, paymentId } = req.body;
+
+//         if (!orderId || !products || !totalAmount || !customer || !paymentId) {
+//             console.log("Missing required fields:", req.body);
+//             return res.status(400).json({ error: "Missing required fields" });
+//         }
+
+//         console.log("Received order data:", req.body);
+
+//         const parsePrice = (priceString) => {
+//             if (typeof priceString === "number") {
+//                 return priceString; 
+//             }
+//             if (!priceString || typeof priceString !== "string") {
+//                 console.log("Invalid price string:", priceString);
+//                 return 0; 
+//             }
+        
+//             const numericValue = Number(priceString.replace(/[^0-9.]/g, "")); 
+//             return isNaN(numericValue) ? 0 : numericValue; 
+//         };
+        
+        
+//         const processedItems = products.map((p) => ({
+//             productId: p._id,
+//             name: p.name,
+//             price: parsePrice(p.price), 
+//             quantity: p.quantity,
+//         }));
+       
+//         const fullAddress = customer.address;
+
+//         const order = new Order({
+//             orderId,
+//             items: processedItems, 
+//             totalAmount: parsePrice(totalAmount),
+//             paymentStatus: "Paid",
+//             paymentId,
+//             customer,
+//             fullAddress,
+//             orderDate: new Date(),
+//         });
+
+//         console.log("Saving order:", order);
+//         await order.save();
+//         console.log("Order saved successfully!");
+
+//         res.status(201).json({ message: "Order stored successfully!", order });
+//     } catch (error) {
+//         console.error("Error storing order:", error);
+//         res.status(500).json({ error: "Error storing order" });
+//     }
+// });
+
+
+
 app.post("/store-order", async (req, res) => {
     try {
         const { orderId, products, totalAmount, customer, paymentId } = req.body;
+        console.log(req.body)
 
-        if (!orderId || !products || !totalAmount || !customer || !paymentId) {
+        if (!orderId || !products || !totalAmount || !customer || !paymentId || !customer.address) {
             console.log("Missing required fields:", req.body);
             return res.status(400).json({ error: "Missing required fields" });
         }
@@ -218,15 +273,16 @@ app.post("/store-order", async (req, res) => {
             return isNaN(numericValue) ? 0 : numericValue; 
         };
         
-        // Process order items
+        
         const processedItems = products.map((p) => ({
             productId: p._id,
             name: p.name,
             price: parsePrice(p.price), 
             quantity: p.quantity,
         }));
+       
+        const fullAddress = customer.address;
 
-        // Save order
         const order = new Order({
             orderId,
             items: processedItems, 
@@ -234,6 +290,7 @@ app.post("/store-order", async (req, res) => {
             paymentStatus: "Paid",
             paymentId,
             customer,
+            fullAddress,
             orderDate: new Date(),
         });
 
@@ -247,6 +304,10 @@ app.post("/store-order", async (req, res) => {
         res.status(500).json({ error: "Error storing order" });
     }
 });
+
+
+
+
 
 
 // fetch order history
@@ -314,6 +375,10 @@ app.get("/user", async (req, res) => {
         res.status(500).json({ error: "Server error" });
     }
 });
+
+
+
+
 
 app.get("/",(req,res)=>{
     res.send("Connection successful")
